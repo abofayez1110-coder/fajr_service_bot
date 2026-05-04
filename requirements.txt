@@ -1,4 +1,5 @@
 python-telegram-bot
-requests
 yt-dlp
 instaloader
+TikTokApi
+ffmpeg-python
