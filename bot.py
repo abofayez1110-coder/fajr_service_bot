@@ -192,3 +192,4 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     app = Application.builder().token(TOKEN).build()
+    app.add_handler(MessageHandler(filters.COM
