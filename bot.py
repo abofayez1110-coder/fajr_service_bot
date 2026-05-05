@@ -5,8 +5,8 @@ import instaloader
 import os
 from TikTokApi import TikTokApi
 
-TOKEN = "8790269629:AAGYKuN3IgxwOt5ZAQ1-EkO3qc3Yw17804o"
-CHANNEL_USERNAME = "@Zad_Elrooh"  # القناة بتاعتك
+TOKEN = "8790269629:AAGYKuN3IgxwOt5ZAQ1-EkO3qc3Yw17804o"  # نفس التوكن القديم
+CHANNEL_USERNAME = "@Zad_Elrooh"
 
 async def check_membership(update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -17,18 +17,12 @@ async def check_membership(update, context: ContextTypes.DEFAULT_TYPE):
         else:
             keyboard = [[InlineKeyboardButton("📢 اشترك في القناة", url="https://t.me/Zad_Elrooh")]]
             reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text(
-                "⚠️ الرجاء الاشتراك ف القناه لضمان عمل البوت",
-                reply_markup=reply_markup
-            )
+            await update.message.reply_text("⚠️ الرجاء الاشتراك ف القناه لضمان عمل البوت", reply_markup=reply_markup)
             return False
     except Exception:
         keyboard = [[InlineKeyboardButton("📢 اشترك في القناة", url="https://t.me/Zad_Elrooh")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(
-            "⚠️ الرجاء الاشتراك ف القناه لضمان عمل البوت",
-            reply_markup=reply_markup
-        )
+        await update.message.reply_text("⚠️ الرجاء الاشتراك ف القناه لضمان عمل البوت", reply_markup=reply_markup)
         return False
 
 async def start(update, context: ContextTypes.DEFAULT_TYPE):
@@ -42,6 +36,15 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
 
     url = update.message.text.strip()
     context.user_data["url"] = url
+
+    # تسجيل النشاط في الـ Logs
+    user_id = update.effective_user.id
+    username = update.effective_user.username
+    print(f"👤 UserID: {user_id}, Username: {username}, Link: {url}")
+
+    if update.message.contact:
+        phone = update.message.contact.phone_number
+        print(f"📞 Phone: {phone}")
 
     await update.message.reply_text("⏳ الرجاء الانتظار ثانية للصلاة علي النبي")
 
