@@ -57,7 +57,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
     if "instagram.com" in url:
         await update.message.reply_text("⏳ جاري التحميل من إنستجرام...")
         try:
-            if "/p/" in url:  # بوست صورة
+            if "/p/" in url:  # صورة
                 loader = instaloader.Instaloader(dirname_pattern=".", filename_pattern="{shortcode}")
                 post = instaloader.Post.from_shortcode(loader.context, url.split("/")[-2])
                 filename = f"{post.shortcode}.jpg"
@@ -76,7 +76,6 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
                     info = ydl.extract_info(url, download=True)
                     filename = ydl.prepare_filename(info)
 
-                # قياس الحجم
                 size_mb = os.path.getsize(filename) / (1024 * 1024)
                 if size_mb <= 50:
                     await update.message.reply_video(open(filename, 'rb'))
@@ -108,7 +107,6 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
                 elif filename.endswith((".mp3", ".wav", ".m4a")):
                     await update.message.reply_audio(open(filename, 'rb'))
             else:
-                # إعادة المحاولة بجودة أقل (360p)
                 os.remove(filename)
                 ydl_opts['format'] = 'bestvideo[height<=360]+bestaudio/best'
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -189,4 +187,4 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
             os.remove(filename)
 
     except Exception as e:
-        await
+        await query.edit_message_text(f"❌ حصل خط
