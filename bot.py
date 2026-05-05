@@ -79,7 +79,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         os.remove(image_path)
         return
 
-    if any(x in url for x in ["tiktok.com", "facebook.com", "twitter.com", "instagram.com"]):
+    if any(x in url for x in ["tiktok.com", "facebook.com", "twitter.com", "instagram.com", "youtube.com", "youtu.be"]):
         await update.message.reply_text("⏳ جاري التحميل...")
         try:
             ydl_opts = {
@@ -87,7 +87,8 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
                 'format': 'bestvideo[height<=540]+bestaudio/best[height<=540]/best',
                 'merge_output_format': 'mp4',
                 'noplaylist': True,
-                'quiet': True
+                'quiet': True,
+                'cookiefile': 'cookies.txt'  # دعم الكوكيز للفيديوهات المقيدة
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
@@ -124,7 +125,8 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
                     'preferredquality': '192',
-                }]
+                }],
+                'cookiefile': 'cookies.txt'
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
@@ -139,7 +141,8 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                 'format': 'bestvideo[height<=540]+bestaudio/best[height<=540]/best',
                 'merge_output_format': 'mp4',
                 'noplaylist': True,
-                'quiet': True
+                'quiet': True,
+                'cookiefile': 'cookies.txt'
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
