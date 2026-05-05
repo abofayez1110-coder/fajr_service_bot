@@ -62,7 +62,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
             else:  # فيديو
                 ydl_opts = {
                     'outtmpl': '%(id)s.%(ext)s',
-                    'format': 'best[ext=mp4][height<=720]',
+                    'format': 'best[ext=mp4][height<=720]/best',
                     'nocheckcertificate': True,
                     'http_headers': {'User-Agent': 'Mozilla/5.0'},
                 }
@@ -86,7 +86,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         try:
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best[ext=mp4][height<=720]',
+                'format': 'best[ext=mp4][height<=720]/best',
                 'nocheckcertificate': True,
                 'http_headers': {'User-Agent': 'Mozilla/5.0'},
             }
@@ -100,7 +100,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
             else:
                 # fallback بجودة أقل
                 os.remove(filename)
-                ydl_opts['format'] = 'best[ext=mp4][height<=360]'
+                ydl_opts['format'] = 'best[ext=mp4][height<=360]/best'
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(url, download=True)
                     filename = ydl.prepare_filename(info)
@@ -144,7 +144,7 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
         elif choice == "video":
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best[ext=mp4][height<=720]',
+                'format': 'best[ext=mp4][height<=720]/best',
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
