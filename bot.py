@@ -3,7 +3,6 @@ from telegram.ext import Application, MessageHandler, filters, ContextTypes, Cal
 import yt_dlp
 import instaloader
 import os
-from TikTokApi import TikTokApi
 
 TOKEN = "8790269629:AAGYKuN3IgxwOt5ZAQ1-EkO3qc3Yw17804o"
 CHANNEL_USERNAME = "@Zad_Elrooh"
@@ -58,22 +57,27 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
     if "instagram.com" in url:
         await update.message.reply_text("⏳ جاري التحميل من إنستجرام...")
         try:
-            ydl_opts = {
-                'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best',
-                'nocheckcertificate': True,
-                'http_headers': {'User-Agent': 'Mozilla/5.0'},
-                'cookiefile': 'cookies_instagram.txt'
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                filename = ydl.prepare_filename(info)
-
-            if filename.endswith(".mp4"):
-                await update.message.reply_video(open(filename, 'rb'))
-            elif filename.endswith((".jpg", ".png")):
+            if "/p/" in url:  # بوست صورة
+                loader = instaloader.Instaloader(dirname_pattern=".", filename_pattern="{shortcode}")
+                post = instaloader.Post.from_shortcode(loader.context, url.split("/")[-2])
+                filename = f"{post.shortcode}.jpg"
+                loader.download_post(post, target=".")
                 await update.message.reply_photo(open(filename, 'rb'))
-            os.remove(filename)
+                os.remove(filename)
+            else:  # فيديو
+                ydl_opts = {
+                    'outtmpl': '%(id)s.%(ext)s',
+                    'format': 'best',
+                    'nocheckcertificate': True,
+                    'http_headers': {'User-Agent': 'Mozilla/5.0'},
+                    'cookiefile': 'cookies_instagram.txt'
+                }
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    filename = ydl.prepare_filename(info)
+
+                await update.message.reply_video(open(filename, 'rb'))
+                os.remove(filename)
         except Exception as e:
             await update.message.reply_text(f"❌ حصل خطأ أثناء التحميل من إنستجرام: {e}")
         return
