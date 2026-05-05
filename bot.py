@@ -191,5 +191,4 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(f"❌ حصل خطأ: {e}")
 
 def main():
-    app = Application.builder().token(TOKEN).build()
-    app.add_handler(MessageHandler(filters.COM
+    app = Application.builder().
