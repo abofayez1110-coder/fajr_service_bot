@@ -7,7 +7,7 @@ from dotenv import load_dotenv   # إضافة المكتبة
 
 # تحميل القيم من ملف .env
 load_dotenv()
-TOKEN = os.getenv("BOT_TOKEN")   # قراءة التوكن من .env
+TOKEN = os.getenv("8790269629:AAESNyBH7sH5fxYsiDO6m51Sb8shshl6vh8")   # قراءة التوكن من .env
 CHANNEL_USERNAME = "@Zad_Elrooh"
 
 async def check_membership(update, context: ContextTypes.DEFAULT_TYPE):
