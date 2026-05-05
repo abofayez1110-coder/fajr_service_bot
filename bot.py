@@ -5,7 +5,7 @@ import instaloader
 import os
 from TikTokApi import TikTokApi
 
-TOKEN = "8790269629:AAGYKuN3IgxwOt5ZAQ1-EkO3qc3Yw17804o"  # نفس التوكن القديم
+TOKEN = "8790269629:AAGYKuN3IgxwOt5ZAQ1-EkO3qc3Yw17804o"
 CHANNEL_USERNAME = "@Zad_Elrooh"
 
 async def check_membership(update, context: ContextTypes.DEFAULT_TYPE):
@@ -37,7 +37,6 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text.strip()
     context.user_data["url"] = url
 
-    # تسجيل النشاط في الـ Logs
     user_id = update.effective_user.id
     username = update.effective_user.username
     print(f"👤 UserID: {user_id}, Username: {username}, Link: {url}")
@@ -56,40 +55,38 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("اختر نوع التحميل:", reply_markup=reply_markup)
         return
 
-    if "tiktok.com" in url and "/photo/" in url:
-        await update.message.reply_text("⏳ جاري تحميل الصورة من تيك توك...")
+    if "instagram.com" in url:
+        await update.message.reply_text("⏳ جاري التحميل من إنستجرام...")
         try:
-            with TikTokApi() as api:
-                post_id = url.split("/")[-1].split("?")[0]
-                post = api.post(id=post_id)
-                for image in post.images:
-                    await update.message.reply_photo(image.bytes())
+            ydl_opts = {
+                'outtmpl': '%(id)s.%(ext)s',
+                'format': 'best',
+                'nocheckcertificate': True,
+                'http_headers': {'User-Agent': 'Mozilla/5.0'},
+                'cookiefile': 'cookies_instagram.txt'
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                filename = ydl.prepare_filename(info)
+
+            if filename.endswith(".mp4"):
+                await update.message.reply_video(open(filename, 'rb'))
+            elif filename.endswith((".jpg", ".png")):
+                await update.message.reply_photo(open(filename, 'rb'))
+            os.remove(filename)
         except Exception as e:
-            await update.message.reply_text(f"⚠️ حصل خطأ أثناء تحميل صور تيك توك: {e}")
+            await update.message.reply_text(f"❌ حصل خطأ أثناء التحميل من إنستجرام: {e}")
         return
 
-    if "instagram.com" in url and "/p/" in url:
-        await update.message.reply_text("⏳ جاري تحميل الصورة من إنستجرام...")
-        loader = instaloader.Instaloader()
-        shortcode = url.split("/")[-2]
-        post = instaloader.Post.from_shortcode(loader.context, shortcode)
-        image_path = f"{post.shortcode}.jpg"
-        loader.download_post(post, target=".")
-        await update.message.reply_photo(open(image_path, 'rb'))
-        os.remove(image_path)
-        return
-
-    if any(x in url for x in ["tiktok.com", "facebook.com", "twitter.com", "instagram.com", "youtube.com", "youtu.be"]):
+    if any(x in url for x in ["tiktok.com", "facebook.com", "twitter.com"]):
         await update.message.reply_text("⏳ جاري التحميل...")
         try:
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
                 'format': 'best',
                 'nocheckcertificate': True,
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0'
-                },
-                'cookiefile': 'cookies.txt'
+                'http_headers': {'User-Agent': 'Mozilla/5.0'},
+                'cookiefile': 'cookies_youtube.txt'
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
@@ -128,10 +125,8 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                     'preferredquality': '192',
                 }],
                 'nocheckcertificate': True,
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0'
-                },
-                'cookiefile': 'cookies.txt'
+                'http_headers': {'User-Agent': 'Mozilla/5.0'},
+                'cookiefile': 'cookies_youtube.txt'
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
@@ -145,10 +140,8 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                 'outtmpl': '%(id)s.%(ext)s',
                 'format': 'best',
                 'nocheckcertificate': True,
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0'
-                },
-                'cookiefile': 'cookies.txt'
+                'http_headers': {'User-Agent': 'Mozilla/5.0'},
+                'cookiefile': 'cookies_youtube.txt'
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
