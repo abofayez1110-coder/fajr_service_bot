@@ -43,10 +43,8 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text.strip()
     context.user_data["url"] = url
 
-    # الرسالة المؤقتة اللي طلبتها
     await update.message.reply_text("⏳ الرجاء الانتظار ثانية للصلاة علي النبي")
 
-    # يوتيوب → يظهر أزرار
     if "youtube.com" in url or "youtu.be" in url:
         keyboard = [
             [InlineKeyboardButton("🎬 فيديو كامل", callback_data="video")],
@@ -56,7 +54,6 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("اختر نوع التحميل:", reply_markup=reply_markup)
         return
 
-    # صور تيك توك
     if "tiktok.com" in url and "/photo/" in url:
         await update.message.reply_text("⏳ جاري تحميل الصورة من تيك توك...")
         try:
@@ -69,7 +66,6 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"⚠️ حصل خطأ أثناء تحميل صور تيك توك: {e}")
         return
 
-    # صور إنستجرام
     if "instagram.com" in url and "/p/" in url:
         await update.message.reply_text("⏳ جاري تحميل الصورة من إنستجرام...")
         loader = instaloader.Instaloader()
@@ -81,14 +77,12 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         os.remove(image_path)
         return
 
-    # باقي المنصات (فيديوهات وصوتيات)
     if any(x in url for x in ["tiktok.com", "facebook.com", "twitter.com", "instagram.com"]):
         await update.message.reply_text("⏳ جاري التحميل...")
         try:
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                # نخلي الجودة لحد 480p علشان الحجم يقل
-                'format': 'bestvideo[height<=480]+bestaudio/best',
+                'format': 'best[ext=mp4][height<=720]',
                 'noplaylist': True,
                 'quiet': True
             }
@@ -96,7 +90,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
 
-            if filename.endswith((".mp4", ".mkv", ".webm")):
+            if filename.endswith(".mp4"):
                 await update.message.reply_video(open(filename, 'rb'))
             elif filename.endswith((".mp3", ".wav", ".m4a")):
                 await update.message.reply_audio(open(filename, 'rb'))
@@ -117,7 +111,6 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
-        # الرسالة المؤقتة اللي طلبتها
         await query.edit_message_text("⏳ الرجاء الانتظار ثانية للصلاة علي النبي")
 
         if choice == "audio":
@@ -140,8 +133,7 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
         elif choice == "video":
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                # نخلي الجودة لحد 480p علشان الحجم يقل
-                'format': 'bestvideo[height<=480]+bestaudio/best',
+                'format': 'best[ext=mp4][height<=720]',
                 'noplaylist': True,
                 'quiet': True
             }
