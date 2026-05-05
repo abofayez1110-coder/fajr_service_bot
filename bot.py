@@ -84,11 +84,12 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         try:
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                'format': 'bestvideo[height<=540]+bestaudio/best[height<=540]/best',
-                'merge_output_format': 'mp4',
-                'noplaylist': True,
-                'quiet': True,
-                'cookiefile': 'cookies.txt'  # دعم الكوكيز للفيديوهات المقيدة
+                'format': 'best',
+                'nocheckcertificate': True,
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0'
+                },
+                'cookiefile': 'cookies.txt'
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
@@ -126,6 +127,10 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                     'preferredcodec': 'mp3',
                     'preferredquality': '192',
                 }],
+                'nocheckcertificate': True,
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0'
+                },
                 'cookiefile': 'cookies.txt'
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -138,10 +143,11 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
         elif choice == "video":
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                'format': 'bestvideo[height<=540]+bestaudio/best[height<=540]/best',
-                'merge_output_format': 'mp4',
-                'noplaylist': True,
-                'quiet': True,
+                'format': 'best',
+                'nocheckcertificate': True,
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0'
+                },
                 'cookiefile': 'cookies.txt'
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
