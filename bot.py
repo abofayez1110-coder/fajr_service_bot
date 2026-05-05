@@ -34,7 +34,7 @@ async def check_membership(update, context: ContextTypes.DEFAULT_TYPE):
 async def start(update, context: ContextTypes.DEFAULT_TYPE):
     if not await check_membership(update, context):
         return
-    await update.message.reply_text("🌹 يسعدنا مساعدتك بعد الصلاة علي النبي\nابعت أي لينك من السوشيال (يوتيوب، تيك توك، إنستجرام، تويتر، فيسبوك، فيميو، ديليموشن).")
+    await update.message.reply_text("🌹 يسعدنا مساعدتك بعد الصلاة علي النبي\nابعت أي لينك من السوشيال (يوتيوب، تيك توك، إنستجرام، تويتر، فيسبوك).")
 
 async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
     if not await check_membership(update, context):
@@ -81,11 +81,17 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         os.remove(image_path)
         return
 
-    # باقي المنصات (فيديوهات وصوتيات) + المنصات الجديدة
-    if any(x in url for x in ["tiktok.com", "facebook.com", "twitter.com", "instagram.com", "vimeo.com", "dailymotion.com"]):
+    # باقي المنصات (فيديوهات وصوتيات)
+    if any(x in url for x in ["tiktok.com", "facebook.com", "twitter.com", "instagram.com"]):
         await update.message.reply_text("⏳ جاري التحميل...")
         try:
-            ydl_opts = {'outtmpl': '%(id)s.%(ext)s', 'format': 'bestvideo+bestaudio/best'}
+            ydl_opts = {
+                'outtmpl': '%(id)s.%(ext)s',
+                # نخلي الجودة لحد 480p علشان الحجم يقل
+                'format': 'bestvideo[height<=480]+bestaudio/best',
+                'noplaylist': True,
+                'quiet': True
+            }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
@@ -132,7 +138,13 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
             os.remove(filename)
 
         elif choice == "video":
-            ydl_opts = {'outtmpl': '%(id)s.%(ext)s', 'format': 'bestvideo+bestaudio/best'}
+            ydl_opts = {
+                'outtmpl': '%(id)s.%(ext)s',
+                # نخلي الجودة لحد 480p علشان الحجم يقل
+                'format': 'bestvideo[height<=480]+bestaudio/best',
+                'noplaylist': True,
+                'quiet': True
+            }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
