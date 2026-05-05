@@ -7,7 +7,7 @@ import yt_dlp
 import instaloader
 
 # ================== CONFIG ==================
-TOKEN = os.getenv("TOKEN")  # لازم يتحط في environment variable
+TOKEN = os.getenv("8790269629:AAESNyBH7sH5fxYsiDO6m51Sb8shshl6vh8")  # لازم يتحط في environment variable
 CHANNEL_USERNAME = "@Zad_Elrooh"
 
 # ================== LOGGING ==================
