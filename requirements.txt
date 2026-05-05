@@ -1,5 +1,0 @@
-python-telegram-bot
-yt-dlp
-instaloader
-TikTokApi
-ffmpeg-python
