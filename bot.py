@@ -1,4 +1,5 @@
 import os
+print("TOKEN =", os.getenv("TOKEN"))
 import logging
 import tempfile
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
