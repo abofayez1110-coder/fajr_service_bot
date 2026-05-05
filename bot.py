@@ -41,7 +41,6 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     username = update.effective_user.username
     print(f"👤 UserID: {user_id}, Username: {username}, Link: {url}")
-
     if update.message.contact:
         phone = update.message.contact.phone_number
         print(f"📞 Phone: {phone}")
@@ -85,7 +84,8 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         try:
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best[ext=mp4][height<=720]',
+                'format': 'bestvideo[height<=540]+bestaudio/best[height<=540]/best',
+                'merge_output_format': 'mp4',
                 'noplaylist': True,
                 'quiet': True
             }
@@ -136,7 +136,8 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
         elif choice == "video":
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best[ext=mp4][height<=720]',
+                'format': 'bestvideo[height<=540]+bestaudio/best[height<=540]/best',
+                'merge_output_format': 'mp4',
                 'noplaylist': True,
                 'quiet': True
             }
