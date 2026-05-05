@@ -76,7 +76,12 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
                     info = ydl.extract_info(url, download=True)
                     filename = ydl.prepare_filename(info)
 
-                await update.message.reply_video(open(filename, 'rb'))
+                # قياس الحجم
+                size_mb = os.path.getsize(filename) / (1024 * 1024)
+                if size_mb <= 50:
+                    await update.message.reply_video(open(filename, 'rb'))
+                else:
+                    await update.message.reply_text(f"⚠️ حجم الفيديو {size_mb:.2f}MB أكبر من الحد المسموح (50MB).")
                 os.remove(filename)
         except Exception as e:
             await update.message.reply_text(f"❌ حصل خطأ أثناء التحميل من إنستجرام: {e}")
@@ -87,7 +92,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
         try:
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best',
+                'format': 'bestvideo[height<=480]+bestaudio/best',
                 'nocheckcertificate': True,
                 'http_headers': {'User-Agent': 'Mozilla/5.0'},
                 'cookiefile': 'cookies_youtube.txt'
@@ -96,10 +101,25 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
 
-            if filename.endswith(".mp4"):
-                await update.message.reply_video(open(filename, 'rb'))
-            elif filename.endswith((".mp3", ".wav", ".m4a")):
-                await update.message.reply_audio(open(filename, 'rb'))
+            size_mb = os.path.getsize(filename) / (1024 * 1024)
+            if size_mb <= 50:
+                if filename.endswith(".mp4"):
+                    await update.message.reply_video(open(filename, 'rb'))
+                elif filename.endswith((".mp3", ".wav", ".m4a")):
+                    await update.message.reply_audio(open(filename, 'rb'))
+            else:
+                # إعادة المحاولة بجودة أقل (360p)
+                os.remove(filename)
+                ydl_opts['format'] = 'bestvideo[height<=360]+bestaudio/best'
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    filename = ydl.prepare_filename(info)
+
+                size_mb = os.path.getsize(filename) / (1024 * 1024)
+                if size_mb <= 50:
+                    await update.message.reply_video(open(filename, 'rb'))
+                else:
+                    await update.message.reply_text(f"⚠️ حجم الفيديو {size_mb:.2f}MB أكبر من الحد المسموح (50MB).")
             os.remove(filename)
         except Exception as e:
             await update.message.reply_text(f"❌ حصل خطأ أثناء التحميل: {e}")
@@ -142,7 +162,7 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
         elif choice == "video":
             ydl_opts = {
                 'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best',
+                'format': 'bestvideo[height<=480]+bestaudio/best',
                 'nocheckcertificate': True,
                 'http_headers': {'User-Agent': 'Mozilla/5.0'},
                 'cookiefile': 'cookies_youtube.txt'
@@ -151,19 +171,22 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
 
-            await context.bot.send_video(chat_id=query.message.chat_id, video=open(filename, 'rb'))
+            size_mb = os.path.getsize(filename) / (1024 * 1024)
+            if size_mb <= 50:
+                await context.bot.send_video(chat_id=query.message.chat_id, video=open(filename, 'rb'))
+            else:
+                os.remove(filename)
+                ydl_opts['format'] = 'bestvideo[height<=360]+bestaudio/best'
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    filename = ydl.prepare_filename(info)
+
+                size_mb = os.path.getsize(filename) / (1024 * 1024)
+                if size_mb <= 50:
+                    await context.bot.send_video(chat_id=query.message.chat_id, video=open(filename, 'rb'))
+                else:
+                    await query.edit_message_text(f"⚠️ حجم الفيديو {size_mb:.2f}MB أكبر من الحد المسموح (50MB).")
             os.remove(filename)
 
     except Exception as e:
-        await query.edit_message_text(f"❌ حصل خطأ: {e}")
-
-def main():
-    app = Application.builder().token(TOKEN).build()
-    app.add_handler(MessageHandler(filters.COMMAND, start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_link))
-    app.add_handler(CallbackQueryHandler(button_handler))
-    print("Bot is running...")
-    app.run_polling()
-
-if __name__ == '__main__':
-    main()
+        await
