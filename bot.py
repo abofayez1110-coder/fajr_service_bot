@@ -3,8 +3,11 @@ from telegram.ext import Application, MessageHandler, filters, ContextTypes, Cal
 import yt_dlp
 import instaloader
 import os
+from dotenv import load_dotenv   # إضافة المكتبة
 
-TOKEN = "8790269629:AAGYKuN3IgxwOt5ZAQ1-EkO3qc3Yw17804o"
+# تحميل القيم من ملف .env
+load_dotenv()
+TOKEN = os.getenv("BOT_TOKEN")   # قراءة التوكن من .env
 CHANNEL_USERNAME = "@Zad_Elrooh"
 
 async def check_membership(update, context: ContextTypes.DEFAULT_TYPE):
@@ -187,4 +190,6 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
             os.remove(filename)
 
     except Exception as e:
-        await query.edit_message_text(f"❌ حصل خط
+        await query.edit_message_text(f"❌ حصل خطأ: {e}")
+
+def main():
