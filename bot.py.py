@@ -7,6 +7,18 @@ import os
 TOKEN = "8790269629:AAESNyBH7sH5fxYsiDO6m51Sb8shshl6vh8"
 CHANNEL_USERNAME = "@Zad_Elrooh"
 
+def get_ydl_opts(site_name):
+    cookie_file = f"cookies_{site_name}.txt"
+    opts = {
+        'outtmpl': '%(id)s.%(ext)s',
+        'format': 'best[ext=mp4]/best',  # يختار أفضل جودة متاحة
+        'nocheckcertificate': True,
+        'http_headers': {'User-Agent': 'Mozilla/5.0'},
+    }
+    if os.path.exists(cookie_file):
+        opts['cookiefile'] = cookie_file
+    return opts
+
 async def check_membership(update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     try:
@@ -60,12 +72,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_photo(open(filename, 'rb'))
                 os.remove(filename)
             else:  # فيديو
-                ydl_opts = {
-                    'outtmpl': '%(id)s.%(ext)s',
-                    'format': 'best[ext=mp4][height<=720]/best',
-                    'nocheckcertificate': True,
-                    'http_headers': {'User-Agent': 'Mozilla/5.0'},
-                }
+                ydl_opts = get_ydl_opts("instagram")
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(url, download=True)
                     filename = ydl.prepare_filename(info)
@@ -84,12 +91,8 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
     if any(x in url for x in ["tiktok.com", "facebook.com", "twitter.com"]):
         await update.message.reply_text("⏳ جاري التحميل...")
         try:
-            ydl_opts = {
-                'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best[ext=mp4][height<=720]/best',
-                'nocheckcertificate': True,
-                'http_headers': {'User-Agent': 'Mozilla/5.0'},
-            }
+            site = "tiktok" if "tiktok.com" in url else "facebook" if "facebook.com" in url else "twitter"
+            ydl_opts = get_ydl_opts(site)
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
@@ -98,7 +101,6 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
             if size_mb <= 50:
                 await update.message.reply_video(open(filename, 'rb'))
             else:
-                # fallback بجودة أقل
                 os.remove(filename)
                 ydl_opts['format'] = 'best[ext=mp4][height<=360]/best'
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -125,15 +127,15 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text("⏳ الرجاء الانتظار ثانية للصلاة علي النبي")
 
         if choice == "audio":
-            ydl_opts = {
-                'outtmpl': '%(id)s.%(ext)s',
+            ydl_opts = get_ydl_opts("youtube")
+            ydl_opts.update({
                 'format': 'bestaudio/best',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
                     'preferredquality': '192',
                 }],
-            }
+            })
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 filename = f"{info['id']}.mp3"
@@ -142,10 +144,8 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
             os.remove(filename)
 
         elif choice == "video":
-            ydl_opts = {
-                'outtmpl': '%(id)s.%(ext)s',
-                'format': 'best[ext=mp4][height<=720]/best',
-            }
+            ydl_opts = get_ydl_opts("youtube")
+            ydl_opts['format'] = 'best[ext=mp4][height<=720]/best'
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
