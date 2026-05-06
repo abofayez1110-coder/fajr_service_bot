@@ -5,7 +5,6 @@ import tempfile
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, filters, ContextTypes, CallbackQueryHandler, CommandHandler
 import yt_dlp
-import instaloader
 
 # ================== CONFIG ==================
 TOKEN = os.getenv("TOKEN")
@@ -23,7 +22,7 @@ def get_ydl_opts(site_name):
 
     return {
         'outtmpl': os.path.join(tempfile.gettempdir(), '%(id)s.%(ext)s'),
-        'format': 'best[ext=mp4]/best',  # ✅ تم التعديل هنا
+        'format': 'best[ext=mp4]/best',
         'nocheckcertificate': True,
         'http_headers': {'User-Agent': 'Mozilla/5.0'},
         'cookiefile': cookie_file if os.path.exists(cookie_file) else None,
@@ -180,7 +179,7 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
 
         elif query.data == "video":
             ydl_opts = get_ydl_opts("youtube")
-            ydl_opts['format'] = 'best[ext=mp4]/best'  # ✅ تم التعديل هنا
+            ydl_opts['format'] = 'best[ext=mp4]/best'
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
