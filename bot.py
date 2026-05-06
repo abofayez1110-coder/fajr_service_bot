@@ -8,7 +8,7 @@ import yt_dlp
 import instaloader
 
 # ================== CONFIG ==================
-TOKEN = os.getenv("TOKEN")  # لازم يتحط في environment variable
+TOKEN = os.getenv("TOKEN")
 CHANNEL_USERNAME = "@Zad_Elrooh"
 
 # ================== LOGGING ==================
@@ -23,7 +23,7 @@ def get_ydl_opts(site_name):
 
     return {
         'outtmpl': os.path.join(tempfile.gettempdir(), '%(id)s.%(ext)s'),
-        'format': 'best[ext=mp4]/best',
+        'format': 'best[ext=mp4]/best',  # ✅ تم التعديل هنا
         'nocheckcertificate': True,
         'http_headers': {'User-Agent': 'Mozilla/5.0'},
         'cookiefile': cookie_file if os.path.exists(cookie_file) else None,
@@ -98,24 +98,25 @@ async def handle_instagram(update, url):
     await update.message.reply_text("⏳ تحميل من إنستجرام...")
 
     try:
-        loader = instaloader.Instaloader()
+        ydl_opts = get_ydl_opts("instagram")
 
-        shortcode = url.strip("/").split("/")[-1].split("?")[0]
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info)
 
-        post = instaloader.Post.from_shortcode(loader.context, shortcode)
+        size_mb = os.path.getsize(filename) / (1024 * 1024)
 
-        filename = os.path.join(tempfile.gettempdir(), f"{shortcode}.jpg")
-
-        loader.download_post(post, target=tempfile.gettempdir())
-
-        with open(filename, 'rb') as f:
-            await update.message.reply_photo(f)
+        if size_mb <= 50:
+            with open(filename, 'rb') as f:
+                await update.message.reply_video(f)
+        else:
+            await update.message.reply_text("⚠️ الفيديو كبير جدًا")
 
         os.remove(filename)
 
     except Exception as e:
         logging.error(e)
-        await update.message.reply_text("❌ خطأ في إنستجرام")
+        await update.message.reply_text(f"❌ خطأ في إنستجرام: {e}")
 
 # ================== OTHER SOCIAL ==================
 async def handle_social(update, url):
@@ -179,7 +180,7 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
 
         elif query.data == "video":
             ydl_opts = get_ydl_opts("youtube")
-            ydl_opts['format'] = 'best[height<=720]'
+            ydl_opts['format'] = 'best[ext=mp4]/best'  # ✅ تم التعديل هنا
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
