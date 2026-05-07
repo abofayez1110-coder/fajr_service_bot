@@ -44,7 +44,7 @@ async def check_membership(update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = [[InlineKeyboardButton("📢 اشترك في القناة", url="https://t.me/Zad_Elrooh")]]
     await update.message.reply_text(
-        "⚠️ لازم تشترك في القناة عشان البوت يشتغل",
+        "⚠️ الرجاء الاشتراك في القناه لضمان عمل البوت",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
     return False
@@ -66,7 +66,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text.strip()
     context.user_data["url"] = url
 
-    await update.message.reply_text("⏳ جاري التحليل...")
+    await update.message.reply_text("✨الرجاء الانتظار لحظات للصلاة علي النبي✨")
 
     # YouTube
     if "youtube.com" in url or "youtu.be" in url:
@@ -94,7 +94,7 @@ async def handle_link(update, context: ContextTypes.DEFAULT_TYPE):
 
 # ================== INSTAGRAM ==================
 async def handle_instagram(update, url):
-    await update.message.reply_text("⏳ تحميل من إنستجرام...")
+    await update.message.reply_text("✨الرجاء الانتظار لحظات للصلاة علي النبي✨")
 
     try:
         ydl_opts = get_ydl_opts("instagram")
@@ -119,7 +119,7 @@ async def handle_instagram(update, url):
 
 # ================== OTHER SOCIAL ==================
 async def handle_social(update, url):
-    await update.message.reply_text("⏳ جاري التحميل...")
+    await update.message.reply_text("✨الرجاء الانتظار لحظات للصلاة علي النبي✨")
 
     try:
         site = (
