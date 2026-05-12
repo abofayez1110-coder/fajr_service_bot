@@ -24,7 +24,19 @@ def get_ydl_opts(site_name):
         'outtmpl': os.path.join(tempfile.gettempdir(), '%(id)s.%(ext)s'),
         'format': 'best[ext=mp4]/best',
         'nocheckcertificate': True,
-        'http_headers': {'User-Agent': 'Mozilla/5.0'},
+
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android']
+            }
+        },
+
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0'
+        },
+
+        'impersonate': 'chrome',
+
         'cookiefile': cookie_file if os.path.exists(cookie_file) else None,
         'quiet': True,
     }
@@ -107,7 +119,13 @@ async def handle_instagram(update, url):
 
         if size_mb <= 50:
             with open(filename, 'rb') as f:
-                await update.message.reply_video(f)
+                await update.message.reply_video(
+                    video=f,
+                    read_timeout=120,
+                    write_timeout=120,
+                    connect_timeout=120,
+                    pool_timeout=120
+                )
         else:
             await update.message.reply_text("⚠️ الفيديو كبير جدًا")
 
@@ -135,7 +153,13 @@ async def handle_social(update, url):
             filename = ydl.prepare_filename(info)
 
         with open(filename, 'rb') as f:
-            await update.message.reply_video(f)
+            await update.message.reply_video(
+                video=f,
+                read_timeout=120,
+                write_timeout=120,
+                connect_timeout=120,
+                pool_timeout=120
+            )
 
         os.remove(filename)
 
@@ -173,7 +197,14 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                 filename = os.path.join(tempfile.gettempdir(), f"{info['id']}.mp3")
 
             with open(filename, 'rb') as f:
-                await context.bot.send_audio(query.message.chat_id, audio=f)
+                await context.bot.send_audio(
+                    chat_id=query.message.chat_id,
+                    audio=f,
+                    read_timeout=120,
+                    write_timeout=120,
+                    connect_timeout=120,
+                    pool_timeout=120
+                )
 
             os.remove(filename)
 
@@ -186,7 +217,14 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                 filename = ydl.prepare_filename(info)
 
             with open(filename, 'rb') as f:
-                await context.bot.send_video(query.message.chat_id, video=f)
+                await context.bot.send_video(
+                    chat_id=query.message.chat_id,
+                    video=f,
+                    read_timeout=120,
+                    write_timeout=120,
+                    connect_timeout=120,
+                    pool_timeout=120
+                )
 
             os.remove(filename)
 
