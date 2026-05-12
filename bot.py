@@ -35,7 +35,12 @@ def get_ydl_opts(site_name):
             'User-Agent': 'Mozilla/5.0'
         },
 
-        'impersonate': 'chrome',
+        # ✅ FIX 1: تم حذف impersonate نهائيًا
+
+        # ✅ FIX 2: تحسين الاستقرار
+        'concurrent_fragment_downloads': 3,
+        'retries': 3,
+        'fragment_retries': 3,
 
         'cookiefile': cookie_file if os.path.exists(cookie_file) else None,
         'quiet': True,
@@ -119,13 +124,7 @@ async def handle_instagram(update, url):
 
         if size_mb <= 50:
             with open(filename, 'rb') as f:
-                await update.message.reply_video(
-                    video=f,
-                    read_timeout=120,
-                    write_timeout=120,
-                    connect_timeout=120,
-                    pool_timeout=120
-                )
+                await update.message.reply_video(video=f)
         else:
             await update.message.reply_text("⚠️ الفيديو كبير جدًا")
 
@@ -133,7 +132,7 @@ async def handle_instagram(update, url):
 
     except Exception as e:
         logging.error(e)
-        await update.message.reply_text(f"❌ خطأ في إنستجرام: {e}")
+        await update.message.reply_text("❌ حصل خطأ في إنستجرام، حاول تاني")
 
 # ================== OTHER SOCIAL ==================
 async def handle_social(update, url):
@@ -153,19 +152,13 @@ async def handle_social(update, url):
             filename = ydl.prepare_filename(info)
 
         with open(filename, 'rb') as f:
-            await update.message.reply_video(
-                video=f,
-                read_timeout=120,
-                write_timeout=120,
-                connect_timeout=120,
-                pool_timeout=120
-            )
+            await update.message.reply_video(video=f)
 
         os.remove(filename)
 
     except Exception as e:
         logging.error(e)
-        await update.message.reply_text("❌ خطأ في التحميل")
+        await update.message.reply_text("❌ حصل خطأ في التحميل")
 
 # ================== BUTTON HANDLER ==================
 async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
@@ -197,40 +190,25 @@ async def button_handler(update, context: ContextTypes.DEFAULT_TYPE):
                 filename = os.path.join(tempfile.gettempdir(), f"{info['id']}.mp3")
 
             with open(filename, 'rb') as f:
-                await context.bot.send_audio(
-                    chat_id=query.message.chat_id,
-                    audio=f,
-                    read_timeout=120,
-                    write_timeout=120,
-                    connect_timeout=120,
-                    pool_timeout=120
-                )
+                await context.bot.send_audio(chat_id=query.message.chat_id, audio=f)
 
             os.remove(filename)
 
         elif query.data == "video":
             ydl_opts = get_ydl_opts("youtube")
-            ydl_opts['format'] = 'best[ext=mp4]/best'
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
 
             with open(filename, 'rb') as f:
-                await context.bot.send_video(
-                    chat_id=query.message.chat_id,
-                    video=f,
-                    read_timeout=120,
-                    write_timeout=120,
-                    connect_timeout=120,
-                    pool_timeout=120
-                )
+                await context.bot.send_video(chat_id=query.message.chat_id, video=f)
 
             os.remove(filename)
 
     except Exception as e:
         logging.error(e)
-        await query.edit_message_text("❌ حصل خطأ")
+        await query.edit_message_text("❌ حصل خطأ، حاول تاني")
 
 # ================== MAIN ==================
 def main():
